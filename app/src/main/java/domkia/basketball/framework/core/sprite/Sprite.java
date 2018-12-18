@@ -1,24 +1,14 @@
 package domkia.basketball.framework.core.sprite;
 
 import domkia.basketball.framework.core.Node;
+import domkia.basketball.framework.core.Rect;
 
 public class Sprite extends Node
 {
-    private int spriteIndex;
+    public Rect rect;
 
-    public Sprite(int spriteIndex)
+    public Sprite(Rect rect)
     {
-        super("sprite");
-        this.spriteIndex = spriteIndex;
-    }
-
-    public void SetSpriteIndex(int index)
-    {
-        spriteIndex = index;
-    }
-
-    public int GetSpriteIndex()
-    {
-        return spriteIndex;
+        this.rect = rect;
     }
 }

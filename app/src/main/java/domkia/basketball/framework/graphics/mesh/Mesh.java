@@ -59,4 +59,9 @@ public class Mesh
     {
         GLES30.glBindVertexArray(vao.get(0));
     }
+
+    public IntBuffer getBuffer(int index)
+    {
+        return buffers.get(index).first;
+    }
 }

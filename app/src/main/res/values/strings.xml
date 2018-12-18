@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Basketball</string>
+    <string name="main_menu_title">BASKETBALL</string>
+    <string name="main_menu_subtitle">Android Individual Project</string>
+    <string name="main_menu_button_start">Start</string>
+    <string name="main_menu_button_info">Info</string>
+    <string name="main_menu_button_quit">Quit</string>
 </resources>

@@ -2,40 +2,56 @@ package domkia.basketball.framework.core.sprite;
 
 import android.opengl.GLES30;
 
-import org.joml.Math;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
+import org.joml.Vector4f;
+
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
+import domkia.basketball.framework.core.Rect;
 import domkia.basketball.framework.graphics.IRenderable;
 import domkia.basketball.framework.graphics.Shader;
 import domkia.basketball.framework.graphics.Texture;
 import domkia.basketball.framework.graphics.mesh.Quad;
 
-//TODO: implement non square texture atlas
 public class SpriteBatch implements IRenderable
 {
-    private final int spritesPerLength;
-    private final Texture texture;
-    private final Shader shader;
+    private Texture texture;
+    private Shader shader;
     private final Quad mesh;
 
     private ArrayList<Sprite> sprites;
 
-    public SpriteBatch(String texturePath, int spritesPerLength)
+    public SpriteBatch(String texturePath)
     {
-        this.spritesPerLength = spritesPerLength;
         texture = new Texture(texturePath, true);
-        sprites = new ArrayList<Sprite>();
+        texture.SetFiltering(GLES30.GL_NEAREST);
+
+        sprites = new ArrayList<>();
         mesh = new Quad();
         shader = new Shader("shaders/sprite.vs", "shaders/sprite.fs");
     }
 
-    public void Add(Sprite sprite)
+    private Sprite[] Slice(int rows, int columns)
     {
-        if(sprite != null)
-            sprites.add(sprite);
+        Sprite[] sliced = new Sprite[rows * columns];
+        int c = 0;
+        float w = 1f / columns;
+        float h = 1f / rows;
+        for(int i = 0;  i < rows; i++)
+            for(int j = 0; j < columns; j++) {
+                Sprite s = new Sprite(new Rect((float) j / (float) columns, 1.0f - h * (i + 1f), w, h));
+                sliced[c] = s;
+                c++;
+            }
+        return sliced;
+    }
+
+    public Sprite AddSprite(Rect rect)
+    {
+        Sprite spr = new Sprite(rect);
+        sprites.add(spr);
+        return spr;
     }
 
     public Sprite Get(int index)
@@ -59,23 +75,15 @@ public class SpriteBatch implements IRenderable
 
     private FloatBuffer GetSpriteUvs()
     {
-        FloatBuffer buffer = FloatBuffer.allocate(sprites.size() * 2);
+        FloatBuffer buffer = FloatBuffer.allocate(sprites.size() * 4);
         for(int i = 0; i < sprites.size(); i++)
         {
-            Vector2f uv = GetSpriteUVOffset(sprites.get(i).GetSpriteIndex());
-            buffer.put(uv.get(FloatBuffer.allocate(2)));
+            Rect r = sprites.get(i).rect;
+            Vector4f uvData = new Vector4f(r.Position().x, r.Position().y, r.width, r.height);
+            buffer.put(uvData.get(FloatBuffer.allocate(4)));
         }
         buffer.position(0);
         return buffer;
-    }
-
-    private Vector2f GetSpriteUVOffset(int spriteIndex)
-    {
-        float factor = (float)spriteIndex / (float)spritesPerLength;
-        float x = factor % 1.0f;
-        int row = (int)Math.floor(factor);
-        float y = row * (1.0f / spritesPerLength);
-        return new Vector2f(x, y);
     }
 
     @Override
@@ -87,10 +95,7 @@ public class SpriteBatch implements IRenderable
 
         //send sprite uvs
         int uvLoc = shader.GetUniformLocation("uvOffset");
-        GLES30.glUniform2fv(uvLoc, sprites.size(), GetSpriteUvs());
-
-        //TODO: does this really need to be a whole uniform???
-        GLES30.glUniform1f(shader.GetUniformLocation("spriteWidth"), 1.0f / spritesPerLength);
+        GLES30.glUniform4fv(uvLoc, sprites.size(), GetSpriteUvs());
 
         //send bunch of matrices representing positions of every instance
         GLES30.glUniformMatrix4fv(shader.GetUniformLocation("modelMatrix"), sprites.size(), false, GetSpriteTransformations());
@@ -104,14 +109,13 @@ public class SpriteBatch implements IRenderable
         GLES30.glUniform1i(shader.GetUniformLocation("tex"), 0);
 
         //render sprites
-        //TODO: move glDepthMash to renderqueue section
         GLES30.glDepthMask(false);
         GLES30.glDrawElementsInstanced(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0, sprites.size());
         GLES30.glDepthMask(true);
     }
 
-    @Override
-    public boolean IsVisible() {
-        return true;
+    public Texture GetTexture()
+    {
+        return texture;
     }
 }

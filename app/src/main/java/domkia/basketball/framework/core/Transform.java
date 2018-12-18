@@ -11,7 +11,7 @@ import org.joml.Vector3f;
 //transforming from local space to world space
 public abstract class Transform
 {
-    private Matrix4f modelMatrix;
+    protected Matrix4f modelMatrix;
 
     protected Transform()
     {

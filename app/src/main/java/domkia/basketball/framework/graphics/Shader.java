@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.IntBuffer;
 
-import domkia.basketball.MainActivity;
+import domkia.basketball.GameActivity;
 
 public class Shader
 {
@@ -22,13 +22,12 @@ public class Shader
         StringBuilder sb = null;
         try
         {
-            InputStream is = MainActivity.ctx.getAssets().open(path);
+            InputStream is = GameActivity.ctx.getAssets().open(path);
             br = new BufferedReader(new InputStreamReader(is));
             sb = new StringBuilder();
             String line = null;
             String ls = System.getProperty("line.separator");
-            while((line = br.readLine()) != null)
-            {
+            while((line = br.readLine()) != null) {
                 sb.append(line);
                 sb.append(ls);
             }

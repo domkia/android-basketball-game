@@ -75,9 +75,4 @@ public class Grid extends Transform implements IRenderable
         GLES30.glLineWidth(2f);
         GLES30.glDrawArrays(GLES30.GL_LINES, 0, LINE_COUNT * 2 * 2);
     }
-
-    @Override
-    public boolean IsVisible() {
-        return true;
-    }
 }

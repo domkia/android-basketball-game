@@ -1,19 +1,18 @@
 package domkia.basketball.framework.core;
 
+import org.joml.Matrix4f;
+
 import java.util.ArrayList;
 
 public abstract class Node extends Transform
 {
-    public final String name;
     public boolean enabled;
 
-    //todo: implement this
     private Node parent;
     private ArrayList<Node> childNodes;
 
-    public Node(String name)
+    public Node()
     {
-        this.name = name;
         parent = null;
         childNodes = new ArrayList<>();
         enabled = true;
@@ -28,7 +27,14 @@ public abstract class Node extends Transform
 
     public final void SetParent(Node parent)
     {
-        this.parent = parent;
+        if(parent == null) {
+            parent.childNodes.remove(this);
+            this.parent = null;
+        }
+        else{
+            this.parent = parent;
+            parent.childNodes.add(this);
+        }
     }
 
     public final Node GetChild(int index)
@@ -39,5 +45,15 @@ public abstract class Node extends Transform
     public final int childCount()
     {
         return childNodes.size();
+    }
+
+    @Override
+    public Matrix4f GetModelMatrix() {
+        if(parent != null)
+        {
+            Matrix4f mat = parent.modelMatrix.mul(this.modelMatrix);
+            return mat;
+        }
+        return this.modelMatrix;
     }
 }

@@ -2,22 +2,22 @@ package domkia.basketball.framework.core.sprite;
 
 import org.joml.Math;
 
-//Sprite animation class
 public class SpriteAnimation
 {
-    final int startFrame;
-    final int count;
+    private final int[] frames;     //sprite indexes
+    private final int count;
 
     private float speed;
     private boolean loop;
     private boolean playing;
     private float animationProgress;
 
-    public SpriteAnimation(int start, int count, float animationSpeed)
+    public SpriteAnimation(int[] frames, float speed, boolean loop)
     {
-        this.startFrame = start;
-        this.count = count;
-        this.speed = animationSpeed;
+        this.frames = frames;
+        this.count = frames.length;
+        this.speed = speed;
+        this.loop = loop;
         this.playing = false;
     }
 
@@ -38,7 +38,7 @@ public class SpriteAnimation
     void Update(float dt)
     {
         if(!loop && animationProgress >= 1.0f)
-            return;
+            Stop();
 
         animationProgress += speed * dt / (float)count;
         if(animationProgress > 1.0f)
@@ -56,7 +56,8 @@ public class SpriteAnimation
 
     public int GetCurrentFrame()
     {
-        return (int) Math.floor(count * animationProgress) + startFrame;
+        int index = (int) Math.floor(count * animationProgress);
+        return frames[index];
     }
 
     public boolean IsPlaying()

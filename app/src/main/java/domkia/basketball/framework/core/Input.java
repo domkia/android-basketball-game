@@ -32,25 +32,20 @@ public class Input implements View.OnTouchListener
                 break;
             }
 
-            /*
             case MotionEvent.ACTION_MOVE:
             {
-                touches.get(pointerId).SetEndCoordinates(e.getX(index), e.getY(index));
+                TouchInfo t = touches.get(pointerId);
+                t.SetCoordinates(e.getX(index), e.getY(index));
+                break;
             }
-            */
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
             {
                 System.out.println(String.format("touch (id: %d) is UP", pointerId));
                 TouchInfo t = touches.get(pointerId);
-                t.SetEndCoordinates(e.getX(index), e.getY(index));
-                t.state = TouchState.Up;
-                break;
-            }
-            case MotionEvent.ACTION_CANCEL:
-            {
-                touches.removeAt(pointerId);
+                t.SetCoordinates(e.getX(index), e.getY(index));
+                t.SetState(TouchState.Up);
                 break;
             }
         }
@@ -72,20 +67,19 @@ public class Input implements View.OnTouchListener
         for(int i = 0; i < touchCount(); i++)
         {
             TouchInfo touchInfo = touches.valueAt(i);
-            if (touchInfo.state == TouchState.Down && !touchInfo.nextFrame)
-                touchInfo.nextFrame = true;
+            if(!touchInfo.newFrame)
+            {
+                touchInfo.newFrame = true;
+                if(touchInfo.state == TouchState.Holding)
+                    touchInfo.newFrame = false;
+            }
             else
-                touchInfo.state = TouchState.Holding;
-        }
-    }
-
-    public void EndOfFrame()
-    {
-        for(int i = 0; i < touchCount(); i++)
-        {
-            TouchInfo touchInfo = touches.valueAt(i);
-            if (touchInfo.state == TouchState.Up && touchInfo.nextFrame)
-                touches.removeAt(i);
+            {
+                if(touchInfo.state == TouchState.Down)
+                    touchInfo.SetState(TouchState.Holding);
+                else if(touchInfo.state == TouchState.Up)
+                    touches.removeAt(i);
+            }
         }
     }
 
@@ -95,23 +89,17 @@ public class Input implements View.OnTouchListener
         Vector2f end;
 
         private TouchState state;
-        private boolean nextFrame = false;              //carry the touch to the next frame if it occured at the end of the frame
-                                                        //so there's no input skipping
+        private boolean newFrame = false;
 
         TouchInfo(float startx, float starty)
         {
             this.start = new Vector2f(startx, starty);
-            this.state = TouchState.Down;
+            SetState(TouchState.Down);
         }
 
-        private void SetEndCoordinates(float x, float y)
+        private void SetCoordinates(float x, float y)
         {
             end = new Vector2f(x, y);
-        }
-
-        public Vector2f GetDelta()
-        {
-            return end.sub(start);
         }
 
         public Vector2f GetPosition()
@@ -121,16 +109,19 @@ public class Input implements View.OnTouchListener
             return end;
         }
 
-        public TouchState getState()
+        public void SetState(TouchState newState)
+        {
+            state = newState;
+            newFrame = false;
+        }
+
+        public TouchState GetState()
         {
             return state;
         }
     }
 
-    public enum TouchState
-    {
-        Down,
-        Holding,
-        Up
+    public enum TouchState {
+        Down, Holding, Up
     }
 }

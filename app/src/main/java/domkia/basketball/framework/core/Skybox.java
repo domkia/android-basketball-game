@@ -33,9 +33,4 @@ public class Skybox implements IRenderable
 
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
     }
-
-    @Override
-    public boolean IsVisible() {
-        return true;
-    }
 }

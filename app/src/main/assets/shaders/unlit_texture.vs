@@ -11,6 +11,6 @@ out mediump vec2 uvs;
 
 void main()
 {
-    uvs = uv;
+    uvs = vec2(uv.x, 1.0 - uv.y);
     gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(position.xyz, 1.0);
 }

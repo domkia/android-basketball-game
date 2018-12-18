@@ -1,16 +1,18 @@
 package domkia.basketball.framework;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.widget.Toast;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import domkia.basketball.GameActivity;
 import domkia.basketball.framework.core.Input;
-import domkia.basketball.framework.core.Time;
 import domkia.basketball.game.Game;
 
 public class GameView extends GLSurfaceView
@@ -40,7 +42,6 @@ public class GameView extends GLSurfaceView
             {
                 DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
                 game = new Game(metrics);
-                Time.Reset();
             }
 
             @Override
@@ -51,11 +52,9 @@ public class GameView extends GLSurfaceView
             @Override
             public void onDrawFrame(GL10 gl10)
             {
-                Time.Update();
                 input.StartOfFrame();
                 game.Update();
                 game.Render();
-                input.EndOfFrame();
             }
         });
 

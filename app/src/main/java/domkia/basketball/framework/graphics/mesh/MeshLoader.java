@@ -1,8 +1,9 @@
 package domkia.basketball.framework.graphics.mesh;
 
 import android.opengl.GLES30;
+import android.util.Log;
 
-import domkia.basketball.MainActivity;
+import domkia.basketball.GameActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +26,7 @@ public class MeshLoader
 
         try
         {
-            InputStream is = MainActivity.ctx.getAssets().open(fbx);
+            InputStream is = GameActivity.ctx.getAssets().open(fbx);
 
             byte[] nameLengthBytes = new byte[4];
             is.read(nameLengthBytes);
@@ -41,25 +42,35 @@ public class MeshLoader
             byte[] vertexCountBytes = new byte[4];
             is.read(vertexCountBytes);
             vertexCount = ByteBuffer.wrap(vertexCountBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
-            ByteBuffer tempBuffer = ByteBuffer.allocateDirect(vertexCount * 4 * 3).order(ByteOrder.LITTLE_ENDIAN);
 
             //read vertex positions
             byte[] vertexBytes = new byte[vertexCount * 4 * 3];
             is.read(vertexBytes);
-            tempBuffer.put(vertexBytes).position(0);
-            vertices = tempBuffer.asFloatBuffer();
+            ByteBuffer vBuffer = ByteBuffer.allocateDirect(vertexCount * 4 * 3).order(ByteOrder.LITTLE_ENDIAN);
+            vBuffer.put(vertexBytes);
+            vBuffer.position(0);
+            vertices = vBuffer.asFloatBuffer();
+            /*
+            for(int i = 0; i < vertexCount; i++)
+            {
+                Log.e("VERTEX ", String.format("%d: (%f, %f, %f)", i, vertices.get(i * 3), vertices.get(i * 3 + 1), vertices.get(i * 3 + 2)));
+            }*/
 
             //read normals
-            is.read(vertexBytes);
-            tempBuffer.put(vertexBytes).position(0);
-            normals = tempBuffer.asFloatBuffer();
+            byte[] normalBytes = new byte[vertexCount * 4 * 3];
+            is.read(normalBytes);
+            ByteBuffer nBuffer = ByteBuffer.allocateDirect(vertexCount * 4 * 3).order(ByteOrder.LITTLE_ENDIAN);
+            nBuffer.put(vertexBytes);
+            nBuffer.position(0);
+            normals = nBuffer.asFloatBuffer();
 
             //read uvs
             byte[] uvsBytes = new byte[vertexCount * 4 * 2];
             is.read(uvsBytes);
-            tempBuffer = ByteBuffer.allocateDirect(vertexCount * 4 * 2).order(ByteOrder.LITTLE_ENDIAN);
-            tempBuffer.put(uvsBytes).position(0);
-            uvs = tempBuffer.asFloatBuffer();
+            ByteBuffer uBuffer = ByteBuffer.allocateDirect(vertexCount * 4 * 2).order(ByteOrder.LITTLE_ENDIAN);
+            uBuffer.put(uvsBytes);
+            uBuffer.position(0);
+            uvs = uBuffer.asFloatBuffer();
 
             //read indices
             byte[] indicesCountBytes = new byte[4];
@@ -68,9 +79,14 @@ public class MeshLoader
 
             byte[] indicesBytes = new byte[indicesCount * 4];
             is.read(indicesBytes);
-            tempBuffer = ByteBuffer.allocateDirect(indicesCount * 4).order(ByteOrder.LITTLE_ENDIAN);
-            tempBuffer.put(indicesBytes).position(0);
-            indices = tempBuffer.asIntBuffer();
+            ByteBuffer iBuffer = ByteBuffer.allocateDirect(indicesCount * 4).order(ByteOrder.LITTLE_ENDIAN);
+            iBuffer.put(indicesBytes);
+            iBuffer.position(0);
+            indices = iBuffer.asIntBuffer();
+
+            byte[] triangleCountBytes = new byte[4];
+            is.read(triangleCountBytes);
+            int triangleCount = Integer.reverseBytes(ByteBuffer.wrap(triangleCountBytes).getInt());
 
             is.close();
         }

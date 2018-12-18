@@ -3,7 +3,7 @@ package domkia.basketball.framework.graphics;
 import android.content.res.AssetManager;
 import android.opengl.GLES30;
 
-import domkia.basketball.MainActivity;
+import domkia.basketball.GameActivity;
 import de.matthiasmann.twl.utils.PNGDecoder;
 
 import java.io.IOException;
@@ -63,7 +63,7 @@ public class Texture
     private TextureData LoadPNG(String path)
     {
         //load png image from assets folder
-        AssetManager am = MainActivity.ctx.getAssets();
+        AssetManager am = GameActivity.ctx.getAssets();
         ByteBuffer pngData = null;
         PNGDecoder decoder = null;
         try
@@ -105,6 +105,8 @@ public class Texture
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, getID());
     }
+
+    public boolean HasAlpha(){return hasAlpha;}
 
     public int getID()
     {

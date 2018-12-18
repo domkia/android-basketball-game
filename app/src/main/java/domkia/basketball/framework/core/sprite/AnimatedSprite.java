@@ -7,11 +7,12 @@ public class AnimatedSprite extends Sprite
     public ArrayList<SpriteAnimation> animations;
     private int currentAnimation;
 
-    public AnimatedSprite(SpriteAnimation animation)
+    public AnimatedSprite(SpriteBatch batch, SpriteAnimation... animation)
     {
-        super(animation.startFrame);
+        super(batch.Get(animation[0].GetCurrentFrame()).rect);
         animations = new ArrayList<SpriteAnimation>();
-        animations.add(animation);
+        for(int i = 0; i < animation.length; i++)
+            animations.add(animation[i]);
         currentAnimation = 0;
     }
 
@@ -30,15 +31,13 @@ public class AnimatedSprite extends Sprite
         animations.add(newAnimation);
     }
 
-    @Override
-    public void Update(float dt)
+    public void UpdateAnimation(float dt)
     {
-        super.Update(dt);
         if(animations.size() == 0)
             return;
         SpriteAnimation anim = animations.get(currentAnimation);
         anim.Update(dt);
-        SetSpriteIndex(anim.GetCurrentFrame());
+        //index = anim.GetCurrentFrame();
     }
 }
 
